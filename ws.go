@@ -135,12 +135,12 @@ func (ws *WSServer) refresh() {
 	fmt.Println(g.Links()[0])
 
 	log.Printf("Initializing layout...")
-	repelling := layout.NewGravityForce(-50.0, layout.BarneHutMethod)
+	repelling := layout.NewGravityForce(-10.0, layout.BarneHutMethod)
 	springs := layout.NewSpringForce(0.01, 5.0, layout.ForEachLink)
-	drag := layout.NewDragForce(0.4, layout.ForEachNode)
+	drag := layout.NewDragForce(0.8, layout.ForEachNode)
 	l := layout.New(g, repelling, springs, drag)
 
-	l.CalculateN(20)
+	l.CalculateN(400)
 
 	ws.updateGraph(g, l)
 	ws.updatePositions()

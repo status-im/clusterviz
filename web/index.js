@@ -138,8 +138,8 @@ var initGraph = function () {
 	graphData.links.forEach((link, idx) => {
 		const color = linkColorAccessor(link);
 			lineMaterials[idx] = new THREE.LineBasicMaterial({
-				color: colorStr2Hex( '#f0f0f0'),
-				transparent: false,
+				color: colorStr2Hex('#f0f0f0'),
+				transparent: true,
 				opacity: 0.4,
 			});
 

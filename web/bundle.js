@@ -139,8 +139,8 @@ var initGraph = function () {
 	graphData.links.forEach((link, idx) => {
 		const color = linkColorAccessor(link);
 			lineMaterials[idx] = new THREE.LineBasicMaterial({
-				color: colorStr2Hex( '#f0f0f0'),
-				transparent: false,
+				color: colorStr2Hex('#f0f0f0'),
+				transparent: true,
 				opacity: 0.4,
 			});
 
@@ -190,7 +190,6 @@ var redrawGraph = function () {
 		// TODO: move this index into map/cache or even into original graph data
 		let start, end;
 		for (let i = 0; i < graphData.nodes.length; i++) {
-			console.log("Node", graphData.nodes[i]);
 			if (graphData.nodes[i].id === link.source) {
 				start = i;
 				break;
