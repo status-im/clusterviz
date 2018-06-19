@@ -136,7 +136,7 @@ func (ws *WSServer) refresh() {
 
 	log.Printf("Initializing layout...")
 	repelling := layout.NewGravityForce(-10.0, layout.BarneHutMethod)
-	springs := layout.NewSpringForce(0.01, 5.0, layout.ForEachLink)
+	springs := layout.NewSpringForce(0.02, 5.0, layout.ForEachLink)
 	drag := layout.NewDragForce(0.8, layout.ForEachNode)
 	l := layout.New(g, repelling, springs, drag)
 
