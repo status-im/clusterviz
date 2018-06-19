@@ -1,92 +1,77 @@
 package main
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	"io"
 	"log"
-	"net/http"
+	"sort"
 )
 
 // ClusterSource represents knowledge source of
 // cluster configuration.
 type ClusterSource interface {
-	Nodes(dc, tag string) ([]*Node, error)
+	IPs(dc, tag string) ([]string, error)
 }
 
-// ConsulSource implements Consul clients that fetches
-// actual information about hosts in cluster.
-type ConsulSource struct {
-	hostport string
+// Fetched implements data fetching from multiple sources
+// to get the needed peers data.
+type Fetcher struct {
+	cluster ClusterSource
+	rpc     RPCClient
 }
 
-// NewConsulSource creates new Consul source. It doesn't attempt
-// to connect or verify if address is correct.
-func NewConsulSource(hostport string) ClusterSource {
-	return &ConsulSource{
-		hostport: hostport,
+// NewFetcher creates new Fetcher.
+func NewFetcher(cluster ClusterSource, rpc RPCClient) *Fetcher {
+	return &Fetcher{
+		cluster: cluster,
+		rpc:     rpc,
 	}
 }
 
-// Node returns the list of nodes for the given datacentre 'dc' and tag.
-// Satisfies ClusterSource interface.
-func (c *ConsulSource) Nodes(dc, tag string) ([]*Node, error) {
-	url := fmt.Sprintf("http://%s/v1/catalog/service/statusd-rpc?tag=%s", c.hostport, tag)
-	resp, err := http.Get(url)
+// Nodes returns the list of nodes for the given datacentre 'dc' and tag.
+func (f *Fetcher) Nodes(dc, tag string) ([]*ClusterNode, error) {
+	ips, err := f.cluster.IPs(dc, tag)
 	if err != nil {
-		return nil, fmt.Errorf("http call failed: %s", err)
+		return nil, err
 	}
-	defer resp.Body.Close()
 
-	ips, err := ParseConsulResponse(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("get nodes list: %s", err)
+	var ret []*ClusterNode
+	for _, ip := range ips {
+		nodeInfo, err := f.rpc.NodeInfo(ip)
+		if err != nil {
+			return nil, err
+		}
+		node := NewClusterNode(ip, nodeInfo)
+		ret = append(ret, node)
+	}
+
+	return ret, nil
+}
+
+// NodePeers runs `admin_peers` command for each node.
+func (f *Fetcher) NodePeers(nodes []*ClusterNode) ([]*Node, []*Link, error) {
+	m := make(map[string]*Node)
+	var links []*Link
+	for _, node := range nodes {
+		// TODO: run concurrently
+		peers, err := f.rpc.AdminPeers(node.IP)
+		if err != nil {
+			log.Printf("[ERROR] Failed to get peers from %s\n", node.IP)
+			continue
+		}
+
+		for _, peer := range peers {
+			m[peer.ID()] = peer
+
+			link := NewLink(node.ID, peer.ID())
+			links = append(links, link)
+		}
 	}
 
 	var ret []*Node
-	for _, ip := range ips {
-		// TODO: run concurrently
-		rpc := NewHTTPRPCClient(ip)
-		nodes, err := rpc.AdminPeers()
-		if err != nil {
-			log.Println("[ERROR] Failed to get peers from %s", ip)
-			continue
-		}
-		ret = append(ret, nodes...)
+	for _, node := range m {
+		ret = append(ret, node)
 	}
-
-	return ret, nil
-
-	return nil, errors.New("TBD")
-}
-
-// ConsulResponse describes response structure from Consul.
-type ConsulResponse []*ConsulNodeInfo
-
-// ConsulNodeInfo describes single node as reported by Consul.
-type ConsulNodeInfo struct {
-	ServiceAddress string
-	ServicePort    string
-}
-
-// ToIP converts ConsulNodeInfo fields into hostport representation of IP.
-func (c *ConsulNodeInfo) ToIP() string {
-	return fmt.Sprintf("%s:%s", c.ServiceAddress, c.ServicePort)
-}
-
-// ParseConsulResponse parses JSON output from Consul response with
-// the list of service and extracts IP addresses.
-func ParseConsulResponse(r io.Reader) ([]string, error) {
-	var resp ConsulResponse
-	err := json.NewDecoder(r).Decode(&resp)
-	if err != nil {
-		return nil, fmt.Errorf("unmarshal Consul JSON response: %s", err)
-	}
-
-	ret := make([]string, len(resp))
-	for i := range resp {
-		ret[i] = resp[i].ToIP()
-	}
-	return ret, nil
+	sort.Slice(ret, func(i, j int) bool {
+		return ret[i].ID() < ret[j].ID()
+	})
+	return ret, links, nil
 }
