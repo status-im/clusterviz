@@ -1,0 +1,104 @@
+<html>
+	<head>
+		<title>Status Mainnet</title>
+		<style>
+			body { margin: 0; }
+		</style>
+		<link rel="stylesheet" href="css/controls.css" type="text/css">
+		<link rel="stylesheet" href="css/pure-min.css" type="text/css">
+		<style>
+				.button-large {
+					font-size: 100%;
+					width: 100px;
+					border-radius: 4px;
+					text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+				}
+
+				.button-success {
+					background: rgb(28, 184, 65);
+					color: white;
+				}
+
+				.button-secondary {
+					color: white;
+					background: rgb(66, 184, 221);
+				}
+
+				.button-error {
+					background: rgb(202, 60, 60);
+					color: white;
+				}
+
+				.nodeBlock {
+					background: transparent;
+
+					width: 300px;
+					height: 200px;
+					position: absolute;
+					padding: 10px;
+					word-wrap: break-word;
+					word-break: break-all;
+					color: white;
+				}
+		</style>
+	</head>
+	<body>
+		<div class="pure-g">
+			<div class="pure-u-1-5">
+				<h1>Status Mainnet</h1>
+				<p>This graph represents Status mainnet cluster and connected clients </p>
+				<div>
+					<br />
+					<div><i> Last updated:
+						<span id="lastUpdated"></span>
+						</i>
+					</div>
+				</div>
+				<hr />
+				<table class="pure-table pure-table-horizontal" width="90%">
+					<thead>
+						<tr>
+							<th>Servers: <span id="stats.servers"></span></th>
+							<th>Clients: <span id="stats.clients"></span></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td colspan="2">
+								<canvas id="servers.sparkline" width="240px" height="100px"></canvas>
+							</td>
+						</tr>
+				</table>
+				<h3>Servers:</h3>
+				<table class="pure-table pure-table-horizontal" width="90%">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Peers</th>
+							<th>Clients</th>
+						</tr>
+					</thead>
+				
+					<tbody id="servers.table">
+					</tbody>
+				</table>
+			</div>
+			<div class="pure-u-4-5">
+				<div id="nodeInfo" class="nodeBlock" hidden="true">
+					<p>
+						<b>Node:</b> <span id="selectedNodeID"></span>
+					</p>
+					<p>
+						<b>Peers:</b> <span id="selectedPeersCount"></span>
+					</p>
+				</div>
+				<canvas id="preview"></canvas>
+			</div>
+		</div>
+		<script src="node_modules/three/build/three.min.js"></script>
+		<script src="js/controls/TrackballControls.js"></script>
+		<script src="js/controls/FlyControls.js"></script>
+
+		<script src="bundle.js"></script>
+	</body>
+</html>
