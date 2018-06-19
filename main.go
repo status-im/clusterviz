@@ -74,6 +74,8 @@ func AddNode(g *graph.Graph, node *Node) {
 
 // AddLink is a wrapper around adding link to graph with proper checking for duplicates.
 func AddLink(g *graph.Graph, fromID, toID string) {
+	AddNode(g, NewNode(fromID, ""))
+	AddNode(g, NewNode(toID, ""))
 	if g.LinkExistsByID(fromID, toID) {
 		return
 	}

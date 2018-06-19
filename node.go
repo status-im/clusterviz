@@ -4,15 +4,15 @@ import "github.com/ethereum/go-ethereum/p2p"
 
 // Node represents single node information to be used in Graph.
 type Node struct {
-	ID_    string `json:"ID"`
-	Group_ int    `json:"Group"`
+	ID_    string `json:"id"`
+	Group_ int    `json:"group"`
 }
 
 // NewNode creates new Node object for the given peerinfo.
-func NewNode(peer *p2p.PeerInfo) *Node {
+func NewNode(id, name string) *Node {
 	return &Node{
-		ID_:    peer.ID,
-		Group_: clientGroup(peer.Name),
+		ID_:    id,
+		Group_: clientGroup(name),
 	}
 }
 
@@ -47,8 +47,8 @@ func NewClusterNode(ip string, peer *p2p.NodeInfo) *ClusterNode {
 // PeersToNodes converts PeerInfo to Nodes.
 func PeersToNodes(peers []*p2p.PeerInfo) ([]*Node, error) {
 	ret := make([]*Node, len(peers))
-	for i := range peers {
-		ret[i] = NewNode(peers[i])
+	for i, peer := range peers {
+		ret[i] = NewNode(peer.ID, peer.Name)
 	}
 	return ret, nil
 }

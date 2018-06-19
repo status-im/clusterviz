@@ -128,7 +128,7 @@ func (ws *WSServer) refresh() {
 	log.Println("Getting peers from Status-cluster via SSH")
 	g, err := BuildGraph(ws.fetcher)
 	if err != nil {
-		log.Println("[ERROR] Failed to fetch: %s", err)
+		log.Printf("[ERROR] Failed to fetch: %s", err)
 		return
 	}
 	log.Printf("Loaded graph: %d nodes, %d links\n", len(g.Nodes()), len(g.Links()))

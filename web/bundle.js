@@ -117,7 +117,7 @@ var initGraph = function () {
 
 		const color = colorAccessor(node);
 		nodeMaterials[idx] = new THREE.MeshStandardMaterial({
-			color: colorStr2Hex(color || '#00ff00'),
+			color: colorStr2Hex('#00ff00'),
 			transparent: false,
 			opacity: 0.75
 		});
@@ -139,8 +139,8 @@ var initGraph = function () {
 	graphData.links.forEach((link, idx) => {
 		const color = linkColorAccessor(link);
 			lineMaterials[idx] = new THREE.LineBasicMaterial({
-				color: colorStr2Hex(color || '#f0f0f0'),
-				transparent: true,
+				color: colorStr2Hex( '#f0f0f0'),
+				transparent: false,
 				opacity: 0.4,
 			});
 
@@ -190,6 +190,7 @@ var redrawGraph = function () {
 		// TODO: move this index into map/cache or even into original graph data
 		let start, end;
 		for (let i = 0; i < graphData.nodes.length; i++) {
+			console.log("Node", graphData.nodes[i]);
 			if (graphData.nodes[i].id === link.source) {
 				start = i;
 				break;
@@ -202,6 +203,14 @@ var redrawGraph = function () {
 			}	
 		}
 
+		if (start === undefined) {
+			console.log("Can't find node for", link.source);
+			return;
+		}
+		if (end === undefined) {
+			console.log("Can't find node for", link.target);
+			return;
+		}
 		linePos.array[0] = positions[start].x;
 		linePos.array[1] = positions[start].y || 0;
 		linePos.array[2] = positions[start].z || 0;
