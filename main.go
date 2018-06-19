@@ -6,7 +6,6 @@ import (
 	"log"
 
 	"github.com/divan/graph-experiments/graph"
-	"github.com/ethereum/go-ethereum/p2p"
 )
 
 func main() {
@@ -40,38 +39,23 @@ func main() {
 
 	g := graph.NewGraph()
 	for _, peer := range peers {
-		_ = peer
-		//AddPeer(g, "", node.PI)
+		if _, err := g.NodeByID(peer.ID()); err == nil {
+			// already exists
+			continue
+		}
+		g.AddNode(peer)
 	}
 	for _, link := range links {
-		_ = link
-		//AddPeer(g, "", node.PI)
+		AddLink(g, link.FromID, link.ToID)
 	}
 
 	fmt.Printf("Graph has %d nodes and %d links\n", len(g.Nodes()), len(g.Links()))
 }
 
-func AddPeer(g *graph.Graph, fromID string, to *p2p.PeerInfo) {
-	toID := to.ID
-	addNode(g, fromID, false)
-	//addNode(g, toID, isClient(to.Name))
-	addNode(g, toID, false)
-
+// AddLink is a wrapper around adding link to graph with proper checking for duplicates.
+func AddLink(g *graph.Graph, fromID, toID string) {
 	if g.LinkExistsByID(fromID, toID) {
 		return
 	}
-	if to.Network.Inbound == false {
-		g.AddLinkByIDs(fromID, toID)
-	} else {
-		g.AddLinkByIDs(toID, fromID)
-	}
-}
-
-func addNode(g *graph.Graph, id string, client bool) {
-	if _, err := g.NodeByID(id); err == nil {
-		// already exists
-		return
-	}
-	//node := NewNode(id)
-	//g.AddNode(node)
+	g.AddLinkByIDs(fromID, toID)
 }
