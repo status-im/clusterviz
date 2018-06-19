@@ -16,6 +16,12 @@ func NewNode(peer *p2p.PeerInfo) *Node {
 	}
 }
 
+// IsClient returns true if node is identified as a mobile client, rather then server.
+func (n *Node) IsClient() bool {
+	// TODO: implement
+	return false
+}
+
 // clientGroup returns group id based in server type.
 func clientGroup(name string) int {
 	// TODO: implement
