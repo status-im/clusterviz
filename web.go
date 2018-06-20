@@ -1,4 +1,8 @@
-//go:generate browserify web/index.js web/js/ws.js -o web/bundle.js
+//go:generate browserify web/index.js web/js/ws.js -o static/bundle.js
+//go:generate cp web/node_modules/three/build/three.min.js static/three.min.js
+//go:generate cp web/js/controls/TrackballControls.js static/
+//go:generate cp web/js/controls/FlyControls.js static/
+//go:generate go-bindata-assetfs static/...
 package main
 
 import (
@@ -7,7 +11,7 @@ import (
 )
 
 func startWeb(ws *WSServer, bind string) {
-	fs := http.FileServer(http.Dir("web"))
+	fs := http.FileServer(assetFS())
 	http.Handle("/", noCacheMiddleware(fs))
 	http.HandleFunc("/ws", ws.Handle)
 	log.Fatal(http.ListenAndServe(bind, nil))
