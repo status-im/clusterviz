@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -32,7 +33,9 @@ func main() {
 	fetcher := NewFetcher(cluster, rpc)
 
 	ws := NewWSServer(fetcher, *updateInterval)
-	ws.refresh()
+
+	// do initial refresh
+	ws.refresh(context.Background())
 
 	log.Printf("Starting web server...")
 	startWeb(ws, *port)
@@ -40,13 +43,13 @@ func main() {
 
 // BuildGraph performs new cycle of updating data from
 // fetcher source and populating graph object.
-func BuildGraph(fetcher *Fetcher) (*graph.Graph, error) {
-	nodes, err := fetcher.Nodes("", "eth.beta")
+func BuildGraph(ctx context.Context, fetcher *Fetcher) (*graph.Graph, error) {
+	nodes, err := fetcher.Nodes(ctx, "", "eth.beta")
 	if err != nil {
 		return nil, fmt.Errorf("list of ips: %s", err)
 	}
 
-	peers, links, err := fetcher.NodePeers(nodes)
+	peers, links, err := fetcher.NodePeers(ctx, nodes)
 	if err != nil {
 		return nil, fmt.Errorf("get node peers: %s", err)
 	}

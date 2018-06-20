@@ -17,8 +17,9 @@ type PeersResponse struct {
 
 // ParsePeersResponse parses JSON-RPC 'admin_peers' response from reader r.
 func ParsePeersResponse(r io.Reader) ([]*p2p.PeerInfo, error) {
+	lr := io.LimitReader(r, 10e6) // 1MB should be more than enough
 	var resp PeersResponse
-	err := json.NewDecoder(r).Decode(&resp)
+	err := json.NewDecoder(lr).Decode(&resp)
 	if err != nil {
 		return nil, err
 	}
@@ -36,8 +37,9 @@ type NodeInfoResponse struct {
 
 // ParseNodeInfoResponse parses JSON-RPC 'admin_nodeInfo' response from reader r.
 func ParseNodeInfoResponse(r io.Reader) (*p2p.NodeInfo, error) {
+	lr := io.LimitReader(r, 10e6) // 1MB should be more than enough
 	var resp NodeInfoResponse
-	err := json.NewDecoder(r).Decode(&resp)
+	err := json.NewDecoder(lr).Decode(&resp)
 	if err != nil {
 		return nil, err
 	}

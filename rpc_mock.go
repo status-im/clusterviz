@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/p2p"
@@ -17,7 +18,7 @@ func NewMockRPCClient() *MockRPCClient {
 
 // AdminPeers simulates call to `admin_peers` RPC and parses the response.
 // Satisfies RPCClient interface.
-func (h *MockRPCClient) AdminPeers(ip string) ([]*Node, error) {
+func (h *MockRPCClient) AdminPeers(ctx context.Context, ip string) ([]*Node, error) {
 	r := bytes.NewBufferString(mockPeers[ip])
 	nodes, err := ParsePeersResponse(r)
 	if err != nil {
@@ -29,7 +30,7 @@ func (h *MockRPCClient) AdminPeers(ip string) ([]*Node, error) {
 
 // AdminPeers simulates call to `admin_peers` RPC and parses the response.
 // Satisfies RPCClient interface.
-func (h *MockRPCClient) NodeInfo(ip string) (*p2p.NodeInfo, error) {
+func (h *MockRPCClient) NodeInfo(ctx context.Context, ip string) (*p2p.NodeInfo, error) {
 	r := bytes.NewBufferString(mockInfo[ip])
 	nodeInfo, err := ParseNodeInfoResponse(r)
 	if err != nil {

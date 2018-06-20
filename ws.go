@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -32,7 +33,11 @@ func NewWSServer(f *Fetcher, updateInterval time.Duration) *WSServer {
 	go func() {
 		t := time.NewTicker(updateInterval)
 		for range t.C {
-			ws.refresh()
+			ctx, _ := context.WithTimeout(context.Background(), updateInterval)
+			if err := ws.refresh(ctx); err != nil {
+				// TODO: send error to ws
+				continue
+			}
 			ws.stats.Update(ws.graph)
 			ws.broadcastStats()
 		}
@@ -102,7 +107,7 @@ func (ws *WSServer) processRequest(c *websocket.Conn, mtype int, data []byte) {
 		ws.updatePositions()
 		ws.sendPositions(c)
 	case CmdRefresh:
-		ws.refresh()
+		ws.refresh(context.TODO())
 		ws.broadcastStats()
 	case CmdStats:
 		ws.sendStats(c)
@@ -123,9 +128,9 @@ func (ws *WSServer) sendMsg(c *websocket.Conn, msg *WSResponse) {
 	}
 }
 
-func (ws *WSServer) refresh() error {
+func (ws *WSServer) refresh(ctx context.Context) error {
 	log.Println("Getting peers from Status-cluster")
-	g, err := BuildGraph(ws.fetcher)
+	g, err := BuildGraph(ctx, ws.fetcher)
 	if err != nil {
 		log.Printf("[ERROR] Failed to fetch: %s", err)
 		return err

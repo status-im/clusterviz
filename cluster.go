@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"sort"
 )
@@ -8,7 +9,7 @@ import (
 // ClusterSource represents knowledge source of
 // cluster configuration.
 type ClusterSource interface {
-	IPs(dc, tag string) ([]string, error)
+	IPs(ctx context.Context, dc, tag string) ([]string, error)
 }
 
 // Fetched implements data fetching from multiple sources
@@ -27,15 +28,15 @@ func NewFetcher(cluster ClusterSource, rpc RPCClient) *Fetcher {
 }
 
 // Nodes returns the list of nodes for the given datacentre 'dc' and tag.
-func (f *Fetcher) Nodes(dc, tag string) ([]*ClusterNode, error) {
-	ips, err := f.cluster.IPs(dc, tag)
+func (f *Fetcher) Nodes(ctx context.Context, dc, tag string) ([]*ClusterNode, error) {
+	ips, err := f.cluster.IPs(ctx, dc, tag)
 	if err != nil {
 		return nil, err
 	}
 
 	var ret []*ClusterNode
 	for _, ip := range ips {
-		nodeInfo, err := f.rpc.NodeInfo(ip)
+		nodeInfo, err := f.rpc.NodeInfo(ctx, ip)
 		if err != nil {
 			return nil, err
 		}
@@ -47,12 +48,12 @@ func (f *Fetcher) Nodes(dc, tag string) ([]*ClusterNode, error) {
 }
 
 // NodePeers runs `admin_peers` command for each node.
-func (f *Fetcher) NodePeers(nodes []*ClusterNode) ([]*Node, []*Link, error) {
+func (f *Fetcher) NodePeers(ctx context.Context, nodes []*ClusterNode) ([]*Node, []*Link, error) {
 	m := make(map[string]*Node)
 	var links []*Link
 	for _, node := range nodes {
 		// TODO: run concurrently
-		peers, err := f.rpc.AdminPeers(node.IP)
+		peers, err := f.rpc.AdminPeers(ctx, node.IP)
 		if err != nil {
 			log.Printf("[ERROR] Failed to get peers from %s\n", node.IP)
 			continue

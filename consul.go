@@ -1,31 +1,45 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
 
 // Consul implements ClusterSource for Consul.
 type Consul struct {
 	hostport string
+	client   *http.Client
 }
+
+const ConsulTimeout = 5 * time.Second // it's localhost, should be in ms actually
 
 // NewConsul creates new Consul source. It doesn't attempt
 // to connect or verify if address is correct.
 func NewConsul(hostport string) *Consul {
 	return &Consul{
 		hostport: hostport,
+		client: &http.Client{
+			Timeout: ConsulTimeout,
+		},
 	}
 }
 
 // IPs returns the list of IPs for the given datacenter and tag from Consul.
-func (c *Consul) IPs(dc, tag string) ([]string, error) {
+func (c *Consul) IPs(ctx context.Context, dc, tag string) ([]string, error) {
 	url := fmt.Sprintf("http://%s/v1/catalog/service/statusd-rpc?tag=%s", c.hostport, tag)
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("http call failed: %s", err)
+		return nil, fmt.Errorf("request: %s", err)
+	}
+	req = req.WithContext(ctx)
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("http call: %s", err)
 	}
 	defer resp.Body.Close()
 

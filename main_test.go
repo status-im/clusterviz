@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"context"
+	"testing"
+)
 
 func TestGraphCreate(t *testing.T) {
 	cluster := NewMockConsulSource()
@@ -8,7 +11,8 @@ func TestGraphCreate(t *testing.T) {
 
 	f := NewFetcher(cluster, rpc)
 
-	nodes, err := f.Nodes("", "eth.beta")
+	ctx := context.Background()
+	nodes, err := f.Nodes(ctx, "", "eth.beta")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -19,7 +23,7 @@ func TestGraphCreate(t *testing.T) {
 		t.Fatalf("Expected %d nodes, got %d", expected, got)
 	}
 
-	peers, links, err := f.NodePeers(nodes)
+	peers, links, err := f.NodePeers(ctx, nodes)
 	if err != nil {
 		t.Fatal(err)
 	}
