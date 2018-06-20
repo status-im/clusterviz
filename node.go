@@ -1,31 +1,45 @@
 package main
 
-import "github.com/ethereum/go-ethereum/p2p"
+import (
+	"github.com/ethereum/go-ethereum/p2p"
+)
 
 // Node represents single node information to be used in Graph.
 type Node struct {
 	ID_    string `json:"id"`
 	Group_ int    `json:"group"`
+
+	meta *Metadata
 }
 
 // NewNode creates new Node object for the given peerinfo.
 func NewNode(id, name string) *Node {
+	meta := NewMetadata(name)
 	return &Node{
 		ID_:    id,
-		Group_: clientGroup(name),
+		Group_: clientGroup(meta),
+
+		meta: meta,
 	}
 }
 
 // IsClient returns true if node is identified as a mobile client, rather then server.
 func (n *Node) IsClient() bool {
-	// TODO: implement
-	return false
+	return n.meta.Name == "StatusIM"
 }
 
 // clientGroup returns group id based in server type.
-func clientGroup(name string) int {
-	// TODO: implement
-	return 1
+func clientGroup(meta *Metadata) int {
+	switch meta.Name {
+	case "StatusIM":
+		return 1
+	case "Statusd":
+		return 2
+	default:
+		return 3
+
+	}
+	return 3
 }
 
 // ClusterNode represents single cluster node information.
