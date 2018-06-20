@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -124,15 +123,14 @@ func (ws *WSServer) sendMsg(c *websocket.Conn, msg *WSResponse) {
 	}
 }
 
-func (ws *WSServer) refresh() {
-	log.Println("Getting peers from Status-cluster via SSH")
+func (ws *WSServer) refresh() error {
+	log.Println("Getting peers from Status-cluster")
 	g, err := BuildGraph(ws.fetcher)
 	if err != nil {
 		log.Printf("[ERROR] Failed to fetch: %s", err)
-		return
+		return err
 	}
 	log.Printf("Loaded graph: %d nodes, %d links\n", len(g.Nodes()), len(g.Links()))
-	fmt.Println(g.Links()[0])
 
 	log.Printf("Initializing layout...")
 	repelling := layout.NewGravityForce(-10.0, layout.BarneHutMethod)
@@ -144,4 +142,6 @@ func (ws *WSServer) refresh() {
 
 	ws.updateGraph(g, l)
 	ws.updatePositions()
+
+	return nil
 }
