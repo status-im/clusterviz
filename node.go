@@ -6,8 +6,9 @@ import (
 
 // Node represents single node information to be used in Graph.
 type Node struct {
-	ID_    string `json:"id"`
-	Group_ int    `json:"group"`
+	ID_     string `json:"id"`
+	Group_  int    `json:"group"`
+	Weight_ int    `json:"weight"`
 
 	meta *Metadata
 }
@@ -16,8 +17,9 @@ type Node struct {
 func NewNode(id, name string) *Node {
 	meta := NewMetadata(name)
 	return &Node{
-		ID_:    id,
-		Group_: clientGroup(meta),
+		ID_:     id,
+		Group_:  group(meta),
+		Weight_: weight(meta),
 
 		meta: meta,
 	}
@@ -28,8 +30,8 @@ func (n *Node) IsClient() bool {
 	return n.meta.Name == "StatusIM"
 }
 
-// clientGroup returns group id based in server type.
-func clientGroup(meta *Metadata) int {
+// group returns group id based in server type.
+func group(meta *Metadata) int {
 	switch meta.Name {
 	case "StatusIM":
 		return 1
@@ -40,6 +42,20 @@ func clientGroup(meta *Metadata) int {
 
 	}
 	return 3
+}
+
+// weight returns weight based in server type.
+func weight(meta *Metadata) int {
+	switch meta.Name {
+	case "StatusIM":
+		return 1
+	case "Statusd":
+		return 2
+	default:
+		return 1
+
+	}
+	return 1
 }
 
 // ClusterNode represents single cluster node information.
@@ -72,9 +88,14 @@ func (n *Node) ID() string {
 	return n.ID_
 }
 
-// Group returns group of the node. Satisfies graph.Node interface.
+// Group returns group of the node. Satisfies graph.GroupedNode interface.
 func (n *Node) Group() int {
 	return n.Group_
+}
+
+// Weight returns group of the node. Satisfies graph.WeightedNode interface.
+func (n *Node) Weight() int {
+	return n.Weight_
 }
 
 // Link represents link between two nodes.

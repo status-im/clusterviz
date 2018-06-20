@@ -110,6 +110,7 @@ var initGraph = function () {
 	autoColorNodes(graphData.nodes);
 	graphData.nodes.forEach((node, idx) => {
 		let val = valAccessor(node) || 1;
+		console.log(node);
 		if (!nodeGeometries.hasOwnProperty(val)) {
 			nodeGeometries[val] = NewEthereumGeometry(val);
 		}

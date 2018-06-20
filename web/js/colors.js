@@ -1,4 +1,4 @@
-var schemePaired = require('d3-scale-chromatic').schemePaired;
+var schemePaired = require('d3-scale-chromatic').schemeSet1;
 var tinyColor = require('tinycolor2');
 
 const colorStr2Hex = str => isNaN(str) ? parseInt(tinyColor(str).toHex(), 16) : str;

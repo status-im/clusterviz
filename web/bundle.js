@@ -111,6 +111,7 @@ var initGraph = function () {
 	autoColorNodes(graphData.nodes);
 	graphData.nodes.forEach((node, idx) => {
 		let val = valAccessor(node) || 1;
+		console.log(node);
 		if (!nodeGeometries.hasOwnProperty(val)) {
 			nodeGeometries[val] = NewEthereumGeometry(val);
 		}
@@ -278,7 +279,7 @@ function onMouseMove( event ) {
 canvas.addEventListener( 'mousemove', onMouseMove, false );
 
 },{"./js/colors.js":2,"./js/ethereum.js":3,"./js/keys.js":4,"./js/shitty_hacks.js":5,"./js/stats.js":6,"dat.gui":68,"stats-js":70}],2:[function(require,module,exports){
-var schemePaired = require('d3-scale-chromatic').schemePaired;
+var schemePaired = require('d3-scale-chromatic').schemeSet1;
 var tinyColor = require('tinycolor2');
 
 const colorStr2Hex = str => isNaN(str) ? parseInt(tinyColor(str).toHex(), 16) : str;
