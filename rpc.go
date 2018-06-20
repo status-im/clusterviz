@@ -29,7 +29,7 @@ func NewHTTPRPCClient() *HTTPRPCClient {
 // Satisfies RPCClient interface.
 func (h *HTTPRPCClient) AdminPeers(ip string) ([]*Node, error) {
 	data := bytes.NewBufferString(`{"jsonrpc":"2.0","method":"admin_peers","params":[],"id":1}`)
-	resp, err := http.Post("https://"+ip, "application/json", data)
+	resp, err := http.Post("http://"+ip, "application/json", data)
 	if err != nil {
 		return nil, fmt.Errorf("POST RPC request: %s", err)
 	}
@@ -47,7 +47,7 @@ func (h *HTTPRPCClient) AdminPeers(ip string) ([]*Node, error) {
 // Satisfies RPCClient interface.
 func (h *HTTPRPCClient) NodeInfo(ip string) (*p2p.NodeInfo, error) {
 	data := bytes.NewBufferString(`{"jsonrpc":"2.0","method":"admin_nodeInfo","params":[],"id":1}`)
-	resp, err := http.Post("https://"+ip, "application/json", data)
+	resp, err := http.Post("http://"+ip, "application/json", data)
 	if err != nil {
 		return nil, fmt.Errorf("POST RPC request: %s", err)
 	}
