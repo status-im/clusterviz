@@ -17,7 +17,7 @@ func NewMockConsulSource() ClusterSource {
 
 // Node returns the list of mock nodes for the given datacentre 'dc' and tag.
 // Satisfies ClusterSource interface.
-func (c *MockConsulSource) IPs(ctx context.Context, dc, tag string) ([]string, error) {
+func (c *MockConsulSource) IPs(ctx context.Context, tag string) ([]string, error) {
 	r := bytes.NewBufferString(mockClusterIPsJSON)
 	return ParseConsulResponse(r)
 }

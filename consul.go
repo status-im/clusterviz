@@ -28,8 +28,39 @@ func NewConsul(hostport string) *Consul {
 	}
 }
 
-// IPs returns the list of IPs for the given datacenter and tag from Consul.
-func (c *Consul) IPs(ctx context.Context, dc, tag string) ([]string, error) {
+// IPs returns the list of IPs for all datacenters and tag from Consul.
+func (c *Consul) IPs(ctx context.Context, tag string) ([]string, error) {
+	url := fmt.Sprintf("http://%s/v1/catalog/datacenters", c.hostport)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("datacenters request: %s", err)
+	}
+	req = req.WithContext(ctx)
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("http call: %s", err)
+	}
+	defer resp.Body.Close()
+
+	dcs, err := ParseConsulDatacentersResponse(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("get datacenters: %s", err)
+	}
+
+	var ret []string
+	for _, dc := range dcs {
+		ips, err := c.IPsDC(ctx, dc, tag)
+		if err != nil {
+			return nil, fmt.Errorf("ips for datacenter %s: %s", dc, err)
+		}
+		ret = append(ret, ips...)
+	}
+	return ret, nil
+}
+
+// IPsDC returns the list of IPs for the given datacenter and tag from Consul.
+func (c *Consul) IPsDC(ctx context.Context, dc, tag string) ([]string, error) {
 	url := fmt.Sprintf("http://%s/v1/catalog/service/statusd-rpc?tag=%s", c.hostport, tag)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -78,4 +109,16 @@ func ParseConsulResponse(r io.Reader) ([]string, error) {
 		ret[i] = resp[i].ToIP()
 	}
 	return ret, nil
+}
+
+// ParseConsulDatacentersResponse parses JSON output from Consul datacenters response with
+// the list of known datacenters.
+func ParseConsulDatacentersResponse(r io.Reader) ([]string, error) {
+	var resp []string
+	err := json.NewDecoder(r).Decode(&resp)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal: %s", err)
+	}
+
+	return resp, nil
 }

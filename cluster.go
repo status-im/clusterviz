@@ -9,7 +9,7 @@ import (
 // ClusterSource represents knowledge source of
 // cluster configuration.
 type ClusterSource interface {
-	IPs(ctx context.Context, dc, tag string) ([]string, error)
+	IPs(ctx context.Context, tag string) ([]string, error)
 }
 
 // Fetched implements data fetching from multiple sources
@@ -28,8 +28,8 @@ func NewFetcher(cluster ClusterSource, rpc RPCClient) *Fetcher {
 }
 
 // Nodes returns the list of nodes for the given datacentre 'dc' and tag.
-func (f *Fetcher) Nodes(ctx context.Context, dc, tag string) ([]*ClusterNode, error) {
-	ips, err := f.cluster.IPs(ctx, dc, tag)
+func (f *Fetcher) Nodes(ctx context.Context, tag string) ([]*ClusterNode, error) {
+	ips, err := f.cluster.IPs(ctx, tag)
 	if err != nil {
 		return nil, err
 	}

@@ -44,7 +44,7 @@ func main() {
 // BuildGraph performs new cycle of updating data from
 // fetcher source and populating graph object.
 func BuildGraph(ctx context.Context, fetcher *Fetcher) (*graph.Graph, error) {
-	nodes, err := fetcher.Nodes(ctx, "", "eth.beta")
+	nodes, err := fetcher.Nodes(ctx, "eth.beta")
 	if err != nil {
 		return nil, fmt.Errorf("list of ips: %s", err)
 	}
