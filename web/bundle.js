@@ -117,7 +117,7 @@ var initGraph = function () {
 
 		const color = colorAccessor(node);
 		nodeMaterials[idx] = new THREE.MeshStandardMaterial({
-			color: colorStr2Hex('#00ff00'),
+			color: colorStr2Hex(color),
 			transparent: false,
 			opacity: 0.75
 		});
