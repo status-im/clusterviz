@@ -37,7 +37,7 @@ func main() {
 	// do initial refresh
 	ws.refresh(context.Background())
 
-	log.Printf("Starting web server...")
+	log.Printf("Starting web server on %s", *port)
 	startWeb(ws, *port)
 }
 
