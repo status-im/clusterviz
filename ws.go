@@ -138,8 +138,8 @@ func (ws *WSServer) refresh(ctx context.Context) error {
 	log.Printf("Loaded graph: %d nodes, %d links\n", len(g.Nodes()), len(g.Links()))
 
 	log.Printf("Initializing layout...")
-	repelling := layout.NewGravityForce(-25.0, layout.BarneHutMethod)
-	springs := layout.NewSpringForce(0.02, 15.0, layout.ForEachLink)
+	repelling := layout.NewGravityForce(-50.0, layout.BarneHutMethod)
+	springs := layout.NewSpringForce(0.01, 5.0, layout.ForEachLink)
 	drag := layout.NewDragForce(0.8, layout.ForEachNode)
 	l := layout.New(g, repelling, springs, drag)
 
