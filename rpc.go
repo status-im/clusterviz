@@ -79,7 +79,9 @@ func (h *HTTPRPCClient) postMethod(ctx context.Context, ip, method string) (io.R
 	if err != nil {
 		return nil, fmt.Errorf("request: %s", err)
 	}
+
 	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := h.client.Do(req)
 	if err != nil {
