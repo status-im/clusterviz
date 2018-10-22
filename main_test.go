@@ -12,7 +12,7 @@ func TestGraphCreate(t *testing.T) {
 	f := NewFetcher(cluster, rpc)
 
 	ctx := context.Background()
-	nodes, err := f.Nodes(ctx, "", "eth.beta")
+	nodes, err := f.Nodes(ctx, "eth.beta")
 	if err != nil {
 		t.Fatal(err)
 	}
